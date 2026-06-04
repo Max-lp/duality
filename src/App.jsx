@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";import { saveData, listenData } from "./firebase";
 
 /* ═══════════════════════════════════════════════════════════
    STATIC DATA
@@ -626,7 +626,7 @@ textarea.inp { resize:vertical; min-height:58px; }
 ═══════════════════════════════════════════════════════════ */
 const KEY = "duality_v1";
 function load()    { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
-function persist(d){ try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {} }
+function persist(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); saveData(d); } catch {} }
 function todayStr(){ return new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}); }
 function todayISO(){ return new Date().toISOString().split("T")[0]; }
 function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
@@ -1091,7 +1091,7 @@ export default function App() {
     {id:"limits",   label:"🛑 Limites"},
     {id:"stats",    label:"📊 Stats"},
   ];
-
+useEffect(() => { listenData((data) => { if(data.role !== undefined) setRole(data.role); if(data.points !== undefined) setPoints(data.points); if(data.link !== undefined) setLink(data.link); if(data.sessions !== undefined) setSessions(data.sessions); if(data.missions !== undefined) setMissions(data.missions); if(data.ideas !== undefined) setIdeas(data.ideas); if(data.fantasmes !== undefined) setFantasmes(data.fantasmes); if(data.streak !== undefined) setStreak(data.streak); if(data.customActions !== undefined) setCustomActs(data.customActions); }); }, []);
   return (
     <>
       <style>{CSS}</style>
