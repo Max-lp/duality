@@ -614,8 +614,38 @@ export default function App() {
     fireAction(pick(pool));
   }
 
-  function FireDots({ count }) {
-    return <div className="intensity-dots">{Array.from({length:6},(_,i)=><div key={i} className="idot" style={i<count?{background:INTENSITY.find(x=>x.level===count)?.color||"#888"}:{}}/>)}</div>;
+  // Selected categories for rapide/session
+  const [selectedCats, setSelectedCats] = useState(st.selectedCats || CATEGORIES.map(c=>c.id));
+  const [showCatSelector, setShowCatSelector] = useState(false);
+
+  function togSelectedCat(id) {
+    setSelectedCats(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
+  }
+
+  // Random action using selectedCats
+  function generateRandom() {
+    const pool = actions.filter(a => a.intensity <= newSessInt && (selectedCats.length===0||selectedCats.includes(a.category)));
+    if (!pool.length) { setCurAction({ name: "Aucune action disponible pour ces catégories — ajoute-en dans la Bibliothèque !", category: "—", lien: 0, points: 0 }); return; }
+    fireAction(pick(pool));
+  }
+
+  function CatSelector() {
+    return <div style={{marginBottom:12}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+        <span style={{fontFamily:"'Cinzel',serif",fontSize:10,fontWeight:700,letterSpacing:2,color:"var(--muted2)",textTransform:"uppercase"}}>Catégories ({selectedCats.length}/{CATEGORIES.length})</span>
+        <div style={{display:"flex",gap:6}}>
+          <button style={{background:"none",border:"none",cursor:"pointer",fontSize:11,color:"var(--purple2)",fontWeight:600}} onClick={()=>setSelectedCats(CATEGORIES.map(c=>c.id))}>Tout</button>
+          <button style={{background:"none",border:"none",cursor:"pointer",fontSize:11,color:"var(--muted2)",fontWeight:600}} onClick={()=>setSelectedCats([])}>Aucune</button>
+        </div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+        {CATEGORIES.map(c=>(
+          <div key={c.id} onClick={()=>togSelectedCat(c.id)} style={{padding:"8px 10px",background:selectedCats.includes(c.id)?"rgba(192,24,44,.2)":"var(--s2)",border:`1px solid ${selectedCats.includes(c.id)?"var(--red)":"var(--b1)"}`,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",gap:6,fontSize:12,fontWeight:500,transition:"all .15s",color:selectedCats.includes(c.id)?"var(--red2)":"var(--text2)"}}>
+            <span style={{fontSize:14}}>{c.icon}</span>{c.label}
+          </div>
+        ))}
+      </div>
+    </div>;
   }
 
   function StarRating({ val, set, max=5 }) {
@@ -631,7 +661,10 @@ export default function App() {
 
         {/* ══ HOME ══ */}
         {tab === "home" && (<>
-          <div className="home-couple-name">{coupleName}</div>
+          <div style={{textAlign:"center",padding:"24px 20px 4px"}}>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:28,fontWeight:900,letterSpacing:8,background:"linear-gradient(180deg,#fff 0%,var(--red2) 50%,var(--red) 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>DUALITY</div>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:13,color:"var(--muted2)",letterSpacing:3,marginTop:3}}>{coupleName}</div>
+          </div>
           <div className="home-stats">
             <div className="hstat"><div className="hstat-val">{coupleLevel}</div><div className="hstat-lbl">Niv.</div></div>
             <div className="hstat"><div className="hstat-val">{totalPoints}</div><div className="hstat-lbl">Pts</div></div>
@@ -656,12 +689,11 @@ export default function App() {
             {link < linkObjective && <div className="link-msg">Votre Lien est sous l'objectif fixé. Certaines activités pourraient vous aider à le renforcer.</div>}
           </div>
 
-          {/* Players */}
+          {/* Players - switch, no role label */}
           <div className="players-row">
             <div className="player-card dom-c" onClick={() => { setViewProfile("p1"); setTab("profil"); }}>
               <div className="player-avatar dom-av">{p1Avatar}</div>
               <div className="player-info">
-                <div className="player-role">Dominant·e</div>
                 <div className="player-name">{p1Name}</div>
                 <div className="player-stats">Niv.{getLevel(p1Points)} · {p1Points} pts</div>
               </div>
@@ -669,7 +701,6 @@ export default function App() {
             <div className="player-card sub-c" onClick={() => { setViewProfile("p2"); setTab("profil"); }}>
               <div className="player-avatar sub-av">{p2Avatar}</div>
               <div className="player-info">
-                <div className="player-role">Soumis·e</div>
                 <div className="player-name">{p2Name}</div>
                 <div className="player-stats">Niv.{getLevel(p2Points)} · {p2Points} pts</div>
               </div>
@@ -722,6 +753,7 @@ export default function App() {
 
           {rapideMode === "aleatoire" && (<>
             <div style={{padding:"0 16px 10px"}}>
+              <CatSelector/>
               <div className="form-row">
                 <span className="inp-label">Intensité max — {INTENSITY.find(x=>x.level===newSessInt)?.label}</span>
                 <div style={{display:"flex",gap:5}}>
@@ -1077,18 +1109,13 @@ export default function App() {
           </div>
         </>)}
 
-        {/* ══ PROFIL ══ */}
+        {/* ══ PROFIL RPG ══ */}
         {tab === "profil" && (<>
-          <div className="page-header">
-            <div className="back-btn" onClick={()=>setTab("home")}>←</div>
-            <div className="page-title">Profil</div>
-            <div style={{width:36}}/>
-          </div>
           {(() => {
             const isP1 = viewProfile === "p1";
             const name = isP1 ? p1Name : p2Name;
             const avatar = isP1 ? p1Avatar : p2Avatar;
-            const points = isP1 ? p1Points : p2Points;
+            const pts = isP1 ? p1Points : p2Points;
             const desc = isP1 ? p1Desc : p2Desc;
             const notes = isP1 ? p1Notes : p2Notes;
             const prefs = isP1 ? p1Prefs : p2Prefs;
@@ -1098,40 +1125,103 @@ export default function App() {
             const setNotes = isP1 ? setP1Notes : setP2Notes;
             const setPrefs = isP1 ? setP1Prefs : setP2Prefs;
             const isMe = activeProfile === viewProfile;
-            return (<>
-              <div className="profile-big">
-                <div className="profile-avatar-big" style={{background:isP1?"radial-gradient(circle,var(--red),#600010)":"radial-gradient(circle,var(--purple2),#300060)"}}>{avatar}</div>
-                <div className="profile-name-big">{name}</div>
-                <div className="profile-role-big">{isP1?"Dominant·e":"Soumis·e"}</div>
-                <div className="profile-stats-row">
-                  <div className="pstat"><div className="pstat-val">{getLevel(points)}</div><div className="pstat-lbl">Niveau</div></div>
-                  <div className="pstat"><div className="pstat-val">{points}</div><div className="pstat-lbl">Points</div></div>
-                  <div className="pstat"><div className="pstat-val">{actions.length}</div><div className="pstat-lbl">Actions</div></div>
+            const lvl = getLevel(pts);
+            const xp = getXP(pts);
+            const bgGrad = isP1 ? "linear-gradient(135deg,#c0182c,#600010)" : "linear-gradient(135deg,#6b1fa0,#300060)";
+            const borderCol = isP1 ? "var(--red)" : "var(--purple2)";
+            const accentCol = isP1 ? "var(--red2)" : "var(--purple3,#b060e0)";
+            const sessCount = sessions.length;
+            const fantCount = fantasmes.filter(f=>f.owner===viewProfile&&f.status==="done").length;
+
+            return <>
+              {/* Hero banner */}
+              <div style={{position:"relative",height:180,background:`linear-gradient(180deg,rgba(10,6,8,0) 0%,var(--bg) 100%),${bgGrad}`,marginBottom:0}}>
+                <div style={{position:"absolute",bottom:0,left:0,right:0,textAlign:"center",padding:"0 20px 16px"}}>
+                  <div style={{width:80,height:80,borderRadius:"50%",background:bgGrad,border:`3px solid ${borderCol}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:36,margin:"0 auto 10px",boxShadow:`0 0 30px ${borderCol}55`}}>{avatar}</div>
+                  <div style={{fontFamily:"'Cinzel',serif",fontSize:22,fontWeight:900,letterSpacing:2}}>{name}</div>
+                  <div style={{fontSize:10,color:"var(--muted2)",letterSpacing:4,marginTop:3,textTransform:"uppercase"}}>Niveau {lvl} · Switch</div>
                 </div>
-                <div className="xp-bar-profile"><div className="xp-fill-profile" style={{width:`${(getXP(points)/getXPNeeded())*100}%`}}/></div>
-                <div style={{fontSize:10,color:"var(--muted)",marginTop:4,letterSpacing:1}}>{getXP(points)}/{getXPNeeded()} XP</div>
+                <div style={{position:"absolute",top:12,left:12}}>
+                  <div className="back-btn" onClick={()=>setTab("home")}>←</div>
+                </div>
+                {isMe&&<div style={{position:"absolute",top:12,right:12}}>
+                  <div style={{padding:"5px 10px",background:"rgba(0,0,0,.4)",border:`1px solid ${borderCol}`,borderRadius:999,fontSize:10,fontFamily:"'Cinzel',serif",fontWeight:700,letterSpacing:1,color:accentCol,cursor:"pointer"}} onClick={()=>setProfileTab(profileTab==="public"?"edit":"public")}>
+                    {profileTab==="edit"?"✓ Fermer":"✏ Éditer"}
+                  </div>
+                </div>}
               </div>
-              <div style={{padding:"0 16px"}}>
-                <div className="tab-switch">
-                  <button className={`tab-sw-btn${profileTab==="public"?" on":""}`} onClick={()=>setProfileTab("public")}>👁️ Public</button>
-                  {isMe&&<button className={`tab-sw-btn${profileTab==="prive"?" on":""}`} onClick={()=>setProfileTab("prive")}>🔒 Privé</button>}
+
+              {/* XP bar */}
+              <div style={{margin:"0 16px 12px",background:"var(--s1)",border:`1px solid ${borderCol}22`,borderRadius:10,padding:"10px 14px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:5,fontSize:10,color:"var(--muted2)"}}>
+                  <span style={{fontFamily:"'Cinzel',serif",letterSpacing:1}}>XP</span>
+                  <span style={{fontFamily:"'Cinzel',serif",color:accentCol}}>{xp} / {getXPNeeded()}</span>
                 </div>
-                {profileTab==="public"&&(<>
+                <div style={{height:5,borderRadius:3,background:"var(--b2)",overflow:"hidden"}}>
+                  <div style={{height:"100%",borderRadius:3,background:bgGrad,width:`${(xp/getXPNeeded())*100}%`,transition:"width .6s ease"}}/>
+                </div>
+              </div>
+
+              {/* Stats RPG */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,margin:"0 16px 12px"}}>
+                {[
+                  {val:lvl,lbl:"Niveau",icon:"⚔️"},
+                  {val:pts,lbl:"Points",icon:"✨"},
+                  {val:sessCount,lbl:"Sessions",icon:"📅"},
+                  {val:fantCount,lbl:"Fantasmes réalisés",icon:"🔥"},
+                  {val:actions.length,lbl:"Actions créées",icon:"📚"},
+                  {val:streak,lbl:"Streak",icon:"🌙"},
+                ].map((s,i)=>(
+                  <div key={i} style={{background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:10,padding:"12px 8px",textAlign:"center",position:"relative",overflow:"hidden"}}>
+                    <div style={{position:"absolute",top:6,right:8,fontSize:14,opacity:.3}}>{s.icon}</div>
+                    <div style={{fontFamily:"'Cinzel',serif",fontSize:20,fontWeight:700,background:bgGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>{s.val}</div>
+                    <div style={{fontSize:9,color:"var(--muted)",marginTop:3,textTransform:"uppercase",letterSpacing:.5}}>{s.lbl}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Vue publique */}
+              {profileTab !== "edit" && <>
+                {/* Citation / description */}
+                <div style={{margin:"0 16px 12px",background:"var(--s1)",border:`1px solid ${borderCol}44`,borderRadius:12,padding:"16px",position:"relative"}}>
+                  <div style={{fontSize:9,fontFamily:"'Cinzel',serif",letterSpacing:3,color:accentCol,marginBottom:8,textTransform:"uppercase"}}>À propos</div>
+                  {desc ? <div style={{fontSize:14,color:"var(--text2)",lineHeight:1.6,fontStyle:"italic"}}>"{desc}"</div>
+                  : <div style={{fontSize:13,color:"var(--muted)",fontStyle:"italic"}}>{isMe?"Ajoute une description en éditant ton profil...":"Aucune description."}</div>}
+                </div>
+
+                {/* Catégories favorites */}
+                <div style={{margin:"0 16px 12px",background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px"}}>
+                  <div style={{fontSize:9,fontFamily:"'Cinzel',serif",letterSpacing:3,color:accentCol,marginBottom:10,textTransform:"uppercase"}}>Préférences</div>
+                  {prefs ? <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.6}}>{prefs}</div>
+                  : <div style={{fontSize:13,color:"var(--muted)",fontStyle:"italic"}}>{isMe?"Décris tes préférences en éditant...":"Non renseigné."}</div>}
+                </div>
+
+                {/* Notes privées (seulement si c'est moi) */}
+                {isMe && <div style={{margin:"0 16px 12px",background:"rgba(107,31,160,.1)",border:"1px solid var(--purple2)",borderRadius:12,padding:"16px"}}>
+                  <div style={{fontSize:9,fontFamily:"'Cinzel',serif",letterSpacing:3,color:"var(--purple2)",marginBottom:8,textTransform:"uppercase"}}>🔒 Notes privées</div>
+                  {notes ? <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.6}}>{notes}</div>
+                  : <div style={{fontSize:13,color:"var(--muted)",fontStyle:"italic"}}>Tes pensées secrètes, visibles uniquement par toi...</div>}
+                </div>}
+              </>}
+
+              {/* Mode édition */}
+              {profileTab === "edit" && isMe && <div style={{padding:"0 16px"}}>
+                <div style={{background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:12,padding:16,marginBottom:12}}>
+                  <div style={{fontSize:9,fontFamily:"'Cinzel',serif",letterSpacing:3,color:accentCol,marginBottom:12,textTransform:"uppercase"}}>✏ Éditer le profil</div>
                   <div className="form-row"><span className="inp-label">Pseudo</span><input className="inp" value={name} onChange={e=>setName(e.target.value)}/></div>
-                  <div className="form-row"><span className="inp-label">Description</span><input className="inp" value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Une phrase qui te décrit..."/></div>
+                  <div className="form-row"><span className="inp-label">Citation / Description</span><textarea className="inp" value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Une phrase qui te définit, ce que tu aimes, ton état d'esprit..."/></div>
+                  <div className="form-row"><span className="inp-label">Préférences</span><textarea className="inp" value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="Ce qui t'attire, tes envies, ce que tu aimes particulièrement..."/></div>
+                  <div className="form-row"><span className="inp-label">🔒 Notes privées (visibles que par toi)</span><textarea className="inp" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Pensées secrètes, limites, envies non encore exprimées..."/></div>
                   <div className="form-row">
                     <span className="inp-label">Avatar</span>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:6,marginTop:6}}>
-                      {AVATARS.map(a=><div key={a} onClick={()=>setAvatar(a)} style={{fontSize:22,textAlign:"center",padding:"8px 4px",borderRadius:8,border:`1px solid ${avatar===a?"var(--gold)":"var(--b1)"}`,background:avatar===a?"rgba(200,146,42,.15)":"var(--s2)",cursor:"pointer"}}>{a}</div>)}
+                      {AVATARS.map(a=><div key={a} onClick={()=>setAvatar(a)} style={{fontSize:22,textAlign:"center",padding:"8px 4px",borderRadius:8,border:`1px solid ${avatar===a?"var(--gold)":"var(--b1)"}`,background:avatar===a?"rgba(200,146,42,.15)":"var(--s2)",cursor:"pointer",transition:"all .15s"}}>{a}</div>)}
                     </div>
                   </div>
-                </>)}
-                {profileTab==="prive"&&isMe&&(<>
-                  <div className="form-row"><span className="inp-label">Notes personnelles</span><textarea className="inp" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Pensées, ressentis, envies à exprimer plus tard..."/></div>
-                  <div className="form-row"><span className="inp-label">Préférences</span><textarea className="inp" value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="Actions ou catégories que tu apprécies particulièrement..."/></div>
-                </>)}
-              </div>
-            </>);
+                  <button className="btn btn-grad btn-full" onClick={()=>setProfileTab("public")}>✓ Sauvegarder</button>
+                </div>
+              </div>}
+            </>;
           })()}
         </>)}
 
