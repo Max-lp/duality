@@ -1068,7 +1068,7 @@ export default function App() {
             {ideas.length===0
               ? <div className="empty"><div className="empty-icon">💡</div>Aucune idée encore.<br/>Notez vos envies !</div>
               : ideas.map(i=>(
-                <div key={i.id} style={{background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:var,padding:14,marginBottom:8,display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10}}>
+                <div key={i.id} style={{background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:"12px",padding:14,marginBottom:8,display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10}}>
                   <div><div style={{fontSize:9,color:"var(--muted)",marginBottom:4}}>{i.date}</div><div style={{fontSize:13}}>{i.text}</div></div>
                   <button style={{background:"none",border:"none",color:"var(--muted)",cursor:"pointer",fontSize:16}} onClick={()=>setIdeas(ideas.filter(x=>x.id!==i.id))}>×</button>
                 </div>
