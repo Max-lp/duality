@@ -161,7 +161,7 @@ body::before {
   pointer-events:none; z-index:9997; opacity:.5;
 }
 
-.app { max-width:480px; margin:0 auto; padding:0 0 90px; position:relative; z-index:1; }
+.app { width:100%; max-width:100%; margin:0 auto; padding:0 0 90px; position:relative; z-index:1; overflow-x:hidden;  }
 
 /* ── Header ── */
 .hdr { padding:28px 20px 0; text-align:center; }
