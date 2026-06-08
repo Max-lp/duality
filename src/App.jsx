@@ -391,8 +391,8 @@ textarea.inp{resize:vertical;min-height:72px}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--grad);cursor:pointer;box-shadow:0 2px 8px rgba(192,24,44,.4)}
 
 /* ── Form modal overlay ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.modal{background:var(--s1);border-radius:20px 20px 0 0;border:1px solid var(--b2);padding:20px 20px 40px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
+.modal{background:var(--s1);border-radius:20px 20px 0 0;border:1px solid var(--b2);padding:20px 20px 40px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;touch-action:pan-y}
 .modal-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-bottom:16px;text-align:center}
 
 /* ── Misc ── */
@@ -916,7 +916,7 @@ export default function App() {
                 ? <div className="empty"><div className="empty-icon">📭</div>Aucune action trouvée.<br/>Ajoute-en dans la Bibliothèque !</div>
                 : filteredActions.map(a => (
                   <div key={a.id} className="action-item" onClick={() => { fireAction(a); setActionStatus(null); }}>
-                    <div className="ai-category">{CATEGORIES.find(c=>c.id===a.category)?.icon} {CATEGORIES.find(c=>c.id===a.category)?.label} {a.role!=="couple"&&<span className="ai-role">· {a.role==="dom"?"DOM":"SUB"}</span>}</div>
+                    <div className="ai-category">{CATEGORIES.find(c=>c.id===a.category)?.icon} {CATEGORIES.find(c=>c.id===a.category)?.label}</div>
                     <div className="ai-name">{a.name}</div>
                     {a.desc&&<div className="ai-desc">{a.desc}</div>}
                     <div className="ai-meta">
@@ -1098,7 +1098,7 @@ export default function App() {
               ? <div className="empty"><div className="empty-icon">📚</div>Aucune action.<br/><span style={{fontSize:12}}>Ajoute ta première action avec le bouton +.</span></div>
               : filteredActions.map(a => (
                 <div key={a.id} className="action-item">
-                  <div className="ai-category">{CATEGORIES.find(c=>c.id===a.category)?.icon} {CATEGORIES.find(c=>c.id===a.category)?.label} {a.role!=="couple"&&<span className="ai-role">· {a.role==="dom"?"DOM":"SUB"}</span>}</div>
+                  <div className="ai-category">{CATEGORIES.find(c=>c.id===a.category)?.icon} {CATEGORIES.find(c=>c.id===a.category)?.label}</div>
                   <div className="ai-name">{a.name}</div>
                   {a.desc&&<div className="ai-desc">{a.desc}</div>}
                   <div className="ai-meta">
@@ -1130,7 +1130,7 @@ export default function App() {
                 <div className="form-row">
                   <span className="inp-label">Intensité — {INTENSITY.find(x=>x.level===newActInt)?.label}</span>
                   <div style={{display:"flex",gap:5}}>
-                    {INTENSITY.map(lv=><div key={lv.level} onClick={()=>setNewActInt(lv.level)} style={{flex:1,height:28,borderRadius:5,background:newActInt===lv.level?lv.color:"var(--s2)",border:`1px solid ${newActInt===lv.level?lv.color:"var(--b1)"}`,cursor:"pointer"}}/>)}
+                    {INTENSITY.map(lv=><div key={lv.level} role="button" onClick={()=>setNewActInt(lv.level)} style={{flex:1,height:28,borderRadius:5,background:newActInt===lv.level?lv.color:"var(--s2)",border:`1px solid ${newActInt===lv.level?lv.color:"var(--b1)"}`,cursor:"pointer"}}/>)}
                   </div>
                 </div>
                 <div className="row" style={{marginBottom:12}}>
@@ -1143,15 +1143,9 @@ export default function App() {
                     <input className="inp" type="number" value={newActLien} onChange={e=>setNewActLien(parseInt(e.target.value)||0)}/>
                   </div>
                 </div>
-                <div className="form-row">
-                  <span className="inp-label">Rôle recommandé</span>
-                  <div style={{display:"flex",gap:6}}>
-                    {[{id:"dom",label:"DOM"},{id:"sub",label:"SUB"},{id:"couple",label:"Couple"}].map(r=><button key={r.id} onClick={()=>setNewActRole(r.id)} style={{flex:1,padding:"8px",borderRadius:8,border:`1px solid ${newActRole===r.id?"var(--red)":"var(--b1)"}`,background:newActRole===r.id?"rgba(192,24,44,.2)":"var(--s2)",color:newActRole===r.id?"var(--red2)":"var(--muted2)",cursor:"pointer",fontSize:12,fontWeight:600}}>{r.label}</button>)}
-                  </div>
-                </div>
                 <div className="row">
-                  <button className="btn btn-outline btn-full" onClick={()=>setShowAddAction(false)}>Annuler</button>
-                  <button className="btn btn-grad btn-full" onClick={addAction} disabled={!newActName.trim()}>Ajouter</button>
+                  <button type="button" className="btn btn-outline btn-full" onClick={()=>setShowAddAction(false)}>Annuler</button>
+                  <button type="button" className="btn btn-grad btn-full" onClick={addAction} disabled={!newActName.trim()}>Ajouter</button>
                 </div>
               </div>
             </div>
