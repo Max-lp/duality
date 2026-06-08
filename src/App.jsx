@@ -812,27 +812,27 @@ export default function App() {
 
           {/* Quick buttons */}
           <div className="home-grid">
-            <div className="home-btn" onClick={() => setTab("rapide")}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setTab("rapide");}}>
               <div className="home-btn-icon hb-red">⚡</div>
               <div className="home-btn-lbl">Action Rapide</div>
             </div>
-            <div className="home-btn" onClick={() => { setShowAddSession(true); setTab("sessions"); }}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setShowAddSession(true);setTab("sessions");}}>
               <div className="home-btn-icon hb-purple">📅</div>
               <div className="home-btn-lbl">Nouvelle Session</div>
             </div>
-            <div className="home-btn" onClick={() => setTab("biblio")}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setTab("biblio");}}>
               <div className="home-btn-icon hb-gold">📚</div>
               <div className="home-btn-lbl">Bibliothèque</div>
             </div>
-            <div className="home-btn" onClick={() => setTab("coffre")}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setTab("coffre");}}>
               <div className="home-btn-icon hb-purple">🔒</div>
               <div className="home-btn-lbl">Fantasmes</div>
             </div>
-            <div className="home-btn" onClick={() => setTab("idees")}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setTab("idees");}}>
               <div className="home-btn-icon hb-gold">💡</div>
               <div className="home-btn-lbl">Journal</div>
             </div>
-            <div className="home-btn" onClick={() => setTab("reglages")}>
+            <div className="home-btn" onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setTab("reglages");}}>
               <div className="home-btn-icon hb-red">⚙️</div>
               <div className="home-btn-lbl">Réglages</div>
             </div>
@@ -1550,12 +1550,12 @@ export default function App() {
         {/* ══ NAV BOTTOM ══ */}
         <nav className="nav-bottom">
           {NAV_ITEMS.map(n=>(
-            <button key={n.id} className={`nav-item${tab===n.id?" on":""}`} onClick={()=>setTab(n.id)}>
+            <button key={n.id} className={`nav-item${tab===n.id?" on":""}`} onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setShowAddReward(false);setTab(n.id);}}>
               <span className="nav-icon">{n.icon}</span>
               {n.label}
             </button>
           ))}
-          <button className={`nav-item${tab==="reglages"||tab==="profil"||tab==="idees"?" on":""}`} onClick={()=>setTab("reglages")}>
+          <button className={`nav-item${tab==="reglages"||tab==="profil"||tab==="idees"?" on":""}`} onClick={()=>{setShowAddAction(false);setShowAddSession(false);setShowAddFantasme(false);setShowAddReward(false);setTab("reglages");}}>
             <span className="nav-icon">⚙️</span>
             Réglages
           </button>
