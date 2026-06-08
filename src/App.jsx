@@ -20,6 +20,18 @@ const CATEGORIES = [
   { id:"distance", label:"À distance",        icon:"📱" },
   { id:"online",   label:"En ligne",          icon:"🌐" },
   { id:"body",     label:"Modif. corporelle", icon:"✨" },
+  { id:"achat",    label:"Achat imposé",      icon:"🛍️" },
+];
+
+const DEFAULT_REWARDS = [
+  { id:"r1", label:"Massage 30 min", cost:25, icon:"💆" },
+  { id:"r2", label:"Dîner au choix du Sub", cost:50, icon:"🍽️" },
+  { id:"r3", label:"Film au choix", cost:15, icon:"🎬" },
+  { id:"r4", label:"Session au choix du Sub", cost:100, icon:"👑" },
+  { id:"r5", label:"Nuit hôtel", cost:200, icon:"🏨" },
+  { id:"r6", label:"Fantasme réalisé", cost:300, icon:"🔥" },
+  { id:"r7", label:"Journée sans corvées", cost:75, icon:"😴" },
+  { id:"r8", label:"Câlin prolongé", cost:10, icon:"🤗" },
 ];
 
 const INTENSITY = [
@@ -44,8 +56,8 @@ const NAV_ITEMS = [
   { id:"rapide",   label:"Rapide",    icon:"⚡" },
   { id:"sessions", label:"Sessions",  icon:"📅" },
   { id:"biblio",   label:"Biblio",    icon:"📚" },
+  { id:"roue",     label:"Roue",      icon:"🎡" },
   { id:"coffre",   label:"Coffre",    icon:"🔒" },
-  { id:"reglages", label:"Réglages",  icon:"⚙️" },
 ];
 
 const PUNISHMENTS = [
@@ -402,14 +414,54 @@ textarea.inp{resize:vertical;min-height:72px}
 .ps-card.active-sub{border-color:var(--purple2);background:rgba(107,31,160,.15)}
 .ps-icon{font-size:28px;margin-bottom:6px}
 .ps-name{font-family:'Cinzel',serif;font-size:13px;font-weight:700}
-`;
+
+/* ── Roue des récompenses ── */
+.wheel-container{display:flex;flex-direction:column;align-items:center;padding:16px}
+.wheel-svg-wrap{position:relative;width:280px;height:280px;margin:0 auto 16px}
+.wheel-pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:28px;z-index:10;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(var(--spin-deg))}}
+.wheel-svg{border-radius:50%;box-shadow:0 0 30px rgba(192,24,44,.4)}
+.spin-anim{animation:spin var(--spin-dur) cubic-bezier(.17,.67,.12,1) forwards}
+.wheel-result-card{background:var(--grad);border-radius:var(--r);padding:16px 20px;text-align:center;margin-bottom:12px;animation:fi .4s ease;box-shadow:0 4px 20px rgba(192,24,44,.4)}
+.wrc-icon{font-size:36px;margin-bottom:6px}
+.wrc-name{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.wrc-cost{font-size:12px;color:rgba(255,255,255,.7)}
+.reward-list{display:flex;flex-direction:column;gap:6px}
+.reward-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;transition:all .2s}
+.reward-item.affordable{border-color:var(--gold);background:rgba(200,146,42,.08)}
+.ri-left{display:flex;align-items:center;gap:10px}
+.ri-icon{font-size:22px}
+.ri-name{font-size:13px;font-weight:600}
+.ri-cost{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold2)}
+.ri-buy{padding:6px 14px;border-radius:999px;background:var(--grad);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.ri-buy:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── Session améliorée ── */
+.sess-progress{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sess-prog-bar{flex:1;height:6px;border-radius:3px;background:var(--b2);overflow:hidden}
+.sess-prog-fill{height:100%;border-radius:3px;background:var(--grad);transition:width .4s ease}
+.sess-prog-txt{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold2);white-space:nowrap}
+.sess-action-card{background:linear-gradient(135deg,rgba(192,24,44,.12),rgba(17,10,14,.9));border:1px solid rgba(192,24,44,.3);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px}
+.sac-num{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.sac-cat{font-size:11px;font-weight:700;color:var(--purple2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.sac-name{font-family:'Cinzel',serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.sac-desc{font-size:13px;color:var(--text2);line-height:1.4}
+.sess-summary{text-align:center;padding:20px}
+.ss-title{font-family:'Cinzel',serif;font-size:22px;font-weight:900;margin-bottom:8px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ss-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.ss-stat{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px;text-align:center}
+.ss-stat-val{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold2)}
+.ss-stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}`;
 
 /* ═══════════════════════════════════════════════
    STORAGE
 ═══════════════════════════════════════════════ */
 const KEY = "duality_v2";
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
-function persist(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); saveData(d); } catch {} }
+function persist(d) { 
+  try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
+  try { saveData(d); } catch {}
+}
 function todayStr() { return new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"2-digit", month:"long", year:"numeric" }); }
 function todayISO() { return new Date().toISOString().split("T")[0]; }
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -453,6 +505,19 @@ export default function App() {
 
   // Actions library: [{id, name, desc, category, intensity, points, lien, role, favorite}]
   const [actions, setActions] = useState(st.actions || []);
+
+  // Rewards
+  const [rewards, setRewards] = useState(st.rewards || DEFAULT_REWARDS);
+  const [wheelSpinning, setWheelSpinning] = useState(false);
+  const [wheelResult, setWheelResult] = useState(null);
+  const [wheelAngle, setWheelAngle] = useState(0);
+  const [showAddReward, setShowAddReward] = useState(false);
+  const [newRewardName, setNewRewardName] = useState("");
+  const [newRewardCost, setNewRewardCost] = useState(50);
+  const [newRewardIcon, setNewRewardIcon] = useState("🎁");
+
+  // Active session (playing through)
+  const [activeSession, setActiveSession] = useState(null); // {actions:[], idx:0, pts:0, lien:0}
 
   // Sessions
   const [sessions, setSessions] = useState(st.sessions || []);
@@ -535,15 +600,15 @@ export default function App() {
 
   // Persist
   useEffect(() => {
-    persist({ coupleName, p1Name, p2Name, p1Avatar, p2Avatar, p1Desc, p2Desc, p1Notes, p2Notes, p1Prefs, p2Prefs, activeProfile, link, linkDecay, linkPenalty, linkObjective, lastLinkDate, p1Points, p2Points, actions, sessions, fantasmes, ideas, streak, lastDate });
-  }, [coupleName, p1Name, p2Name, p1Avatar, p2Avatar, p1Desc, p2Desc, p1Notes, p2Notes, p1Prefs, p2Prefs, activeProfile, link, linkDecay, linkPenalty, linkObjective, lastLinkDate, p1Points, p2Points, actions, sessions, fantasmes, ideas, streak, lastDate]);
+    persist({ coupleName, p1Name, p2Name, p1Avatar, p2Avatar, p1Desc, p2Desc, p1Notes, p2Notes, p1Prefs, p2Prefs, activeProfile, link, linkDecay, linkPenalty, linkObjective, lastLinkDate, p1Points, p2Points, actions, sessions, fantasmes, ideas, streak, lastDate, rewards });
+  }, [coupleName, p1Name, p2Name, p1Avatar, p2Avatar, p1Desc, p2Desc, p1Notes, p2Notes, p1Prefs, p2Prefs, activeProfile, link, linkDecay, linkPenalty, linkObjective, lastLinkDate, p1Points, p2Points, actions, sessions, fantasmes, ideas, streak, lastDate, rewards]);
 
   // Helpers
   const totalPoints = p1Points + p2Points;
   const coupleLevel = getLevel(totalPoints);
   const coupleXP = getXP(totalPoints);
   const linkState = getLinkState(link);
-  const activeP = activeProfile === "p1" ? { name: p1Name, avatar: p1Avatar, points: p1Points } : { name: p2Name, avatar: p2Avatar, points: p2Points };
+  const myPoints = activeProfile === "p1" ? p1Points : p2Points;
 
   function fireAction(act) {
     setCurAction(act);
@@ -567,12 +632,62 @@ export default function App() {
     }
   }
 
+  // Session active functions
+  function startSession(sess) {
+    setActiveSession({ actions: sess.actions.map(name => actions.find(a=>a.name===name)||{name,category:"—",points:0,lien:0}), idx:0, pts:0, lien:0, name:sess.name, done:false });
+    setActionStatus(null);
+  }
+
+  function validateSessionAction(ok) {
+    if (!activeSession) return;
+    const act = activeSession.actions[activeSession.idx];
+    const pts = ok ? (act.points||10) : 0;
+    const lien = ok ? (act.lien||5) : -linkPenalty;
+    setLink(l => Math.min(100, Math.max(0, l + lien)));
+    if (ok) { if(activeProfile==="p1") setP1Points(p=>p+pts); else setP2Points(p=>p+pts); }
+    const newIdx = activeSession.idx + 1;
+    const isDone = newIdx >= activeSession.actions.length;
+    setActiveSession({...activeSession, idx:newIdx, pts:activeSession.pts+pts, lien:activeSession.lien+lien, done:isDone});
+    setActionStatus(null);
+  }
+
+  // Wheel functions
+  function spinWheel() {
+    if (wheelSpinning || rewards.length === 0) return;
+    setWheelSpinning(true);
+    setWheelResult(null);
+    const extraSpins = (Math.floor(Math.random()*5)+5)*360;
+    const slice = 360 / rewards.length;
+    const targetIdx = Math.floor(Math.random()*rewards.length);
+    const targetAngle = extraSpins + (360 - targetIdx*slice - slice/2);
+    setWheelAngle(prev => prev + targetAngle);
+    setTimeout(() => {
+      setWheelSpinning(false);
+      setWheelResult(rewards[targetIdx]);
+    }, 4000);
+  }
+
+  function buyReward(r) {
+    if (myPoints < r.cost) return;
+    if (activeProfile === "p1") setP1Points(p => p - r.cost);
+    else setP2Points(p => p - r.cost);
+  }
+
+  function addReward() {
+    if (!newRewardName.trim()) return;
+    setRewards([...rewards, {id:`r${Date.now()}`, label:newRewardName.trim(), cost:newRewardCost, icon:newRewardIcon}]);
+    setNewRewardName(""); setNewRewardCost(50); setNewRewardIcon("🎁");
+    setShowAddReward(false);
+  }
+
   function addAction() {
     if (!newActName.trim()) return;
     const a = { id: Date.now(), name: newActName.trim(), desc: newActDesc.trim(), category: newActCat, intensity: newActInt, points: newActPts, lien: newActLien, role: newActRole, favorite: false };
-    setActions([...actions, a]);
+    const newActions = [...actions, a];
+    setActions(newActions);
     setNewActName(""); setNewActDesc(""); setNewActCat("oral"); setNewActInt(1); setNewActPts(10); setNewActLien(5); setNewActRole("couple");
     setShowAddAction(false);
+  }
   }
 
   function toggleFav(id) { setActions(actions.map(a => a.id === id ? {...a, favorite: !a.favorite} : a)); }
@@ -856,23 +971,76 @@ export default function App() {
         {/* ══ SESSIONS ══ */}
         {tab === "sessions" && (<>
           <div className="page-header">
-            <div className="back-btn" onClick={()=>setTab("home")}>←</div>
-            <div className="page-title">Sessions</div>
-            <div className="action-btn" onClick={()=>setShowAddSession(true)}>+</div>
+            <div className="back-btn" onClick={()=>{ if(activeSession){setActiveSession(null);setActionStatus(null);} else setTab("home"); }}>←</div>
+            <div className="page-title">{activeSession ? activeSession.name : "Sessions"}</div>
+            {!activeSession && <div className="action-btn" onClick={()=>setShowAddSession(true)}>+</div>}
+            {activeSession && <div style={{width:36}}/>}
           </div>
-          {sessions.length === 0
-            ? <div className="empty" style={{marginTop:40}}><div className="empty-icon">📅</div>Aucune session<br/><span style={{fontSize:12}}>Crée ta première session avec le bouton +.</span></div>
-            : <div style={{padding:"8px 16px 0"}}>
-              {sessions.map(s => (
-                <div key={s.id} className="session-card">
-                  <div className="sc-date">{s.date}</div>
-                  <div className="sc-title">{s.name}</div>
-                  {s.actions?.length > 0 && <div className="tags">{s.actions.map((a,i)=><span key={i} className="tag">{a}</span>)}</div>}
-                  {s.note && <div className="sc-note">"{s.note}"</div>}
-                </div>
-              ))}
+
+          {/* Active session player */}
+          {activeSession && !activeSession.done && (<>
+            <div style={{padding:"8px 16px 0"}}>
+              <div className="sess-progress">
+                <div className="sess-prog-bar"><div className="sess-prog-fill" style={{width:`${(activeSession.idx/activeSession.actions.length)*100}%`}}/></div>
+                <div className="sess-prog-txt">{activeSession.idx}/{activeSession.actions.length}</div>
+              </div>
+              {activeSession.idx < activeSession.actions.length && (() => {
+                const act = activeSession.actions[activeSession.idx];
+                const cat = CATEGORIES.find(c=>c.id===act?.category);
+                return <>
+                  <div className="sess-action-card">
+                    <div className="sac-num">ACTION {activeSession.idx+1} / {activeSession.actions.length}</div>
+                    {cat && <div className="sac-cat">{cat.icon} {cat.label}</div>}
+                    <div className="sac-name">{act?.name || "—"}</div>
+                    {act?.desc && <div className="sac-desc">{act.desc}</div>}
+                    {act?.points && <div style={{marginTop:8,fontSize:11,color:"var(--gold2)",fontWeight:600}}>+{act.points} pts · +{act.lien}% Lien</div>}
+                  </div>
+                  {actionStatus === null && <div className="validate-row">
+                    <button className="vbtn-ok" onClick={()=>{ validateSessionAction(true); }}>✅ Accompli</button>
+                    <button className="vbtn-fail" onClick={()=>{ validateSessionAction(false); }}>❌ Échec</button>
+                  </div>}
+                  {actionStatus === "done" && <><div className="validate-result vr-ok"><div className="vr-icon">✅</div><div className="vr-text">Accompli !</div></div><button className="btn btn-grad btn-full" onClick={()=>setActionStatus(null)}>Action suivante ▶</button></>}
+                  {actionStatus === "fail" && <><div className="validate-result vr-fail"><div className="vr-icon">❌</div><div className="vr-text">Raté</div></div><button className="btn btn-outline btn-full" onClick={()=>setActionStatus(null)}>Continuer ▶</button></>}
+                </>;
+              })()}
             </div>
-          }
+          </>)}
+
+          {/* Session terminée */}
+          {activeSession && activeSession.done && (
+            <div style={{padding:"0 16px"}}>
+              <div className="sess-summary">
+                <div className="ss-title">Session terminée ! 🎉</div>
+                <div className="ss-stats">
+                  <div className="ss-stat"><div className="ss-stat-val">{activeSession.actions.length}</div><div className="ss-stat-lbl">Actions</div></div>
+                  <div className="ss-stat"><div className="ss-stat-val">+{activeSession.pts}</div><div className="ss-stat-lbl">Points</div></div>
+                  <div className="ss-stat"><div className="ss-stat-val">+{Math.max(0,activeSession.lien)}%</div><div className="ss-stat-lbl">Lien</div></div>
+                </div>
+                <button className="btn btn-grad btn-full" onClick={()=>{setActiveSession(null);setActionStatus(null);}}>Terminer</button>
+              </div>
+            </div>
+          )}
+
+          {/* Liste des sessions */}
+          {!activeSession && (<>
+            {sessions.length === 0
+              ? <div className="empty" style={{marginTop:40}}><div className="empty-icon">📅</div>Aucune session<br/><span style={{fontSize:12}}>Crée ta première session avec le bouton +.</span></div>
+              : <div style={{padding:"8px 16px 0"}}>
+                {sessions.map(s => (
+                  <div key={s.id} className="session-card" style={{cursor:"pointer"}} onClick={()=>startSession(s)}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                      <div className="sc-date">{s.date}</div>
+                      <span style={{fontSize:11,color:"var(--gold2)",fontWeight:600}}>{s.actions?.length||0} actions ▶</span>
+                    </div>
+                    <div className="sc-title">{s.name}</div>
+                    {s.actions?.length > 0 && <div className="tags">{s.actions.slice(0,3).map((a,i)=><span key={i} className="tag">{a}</span>)}{s.actions.length>3&&<span className="tag">+{s.actions.length-3}</span>}</div>}
+                    {s.note && <div className="sc-note">"{s.note}"</div>}
+                  </div>
+                ))}
+              </div>
+            }
+          </>)}
+
           {showAddSession && (
             <div className="overlay" onClick={e=>e.target===e.currentTarget&&setShowAddSession(false)}>
               <div className="modal">
@@ -889,21 +1057,32 @@ export default function App() {
                     {INTENSITY.map(lv=><div key={lv.level} onClick={()=>setNewSessInt(lv.level)} style={{flex:1,height:28,borderRadius:5,background:newSessInt>=lv.level?lv.color:"var(--s2)",border:`1px solid ${newSessInt>=lv.level?lv.color:"var(--b1)"}`,cursor:"pointer"}}/>)}
                   </div>
                 </div>
-                <div className="form-row">
-                  <span className="inp-label">Actions ({sessActions.length})</span>
-                  <div style={{maxHeight:200,overflowY:"auto"}}>
-                    {actions.filter(a=>a.intensity<=newSessInt).map(a=>(
-                      <div key={a.id} style={{padding:"8px 10px",background:"var(--s2)",borderRadius:8,marginBottom:4,display:"flex",alignItems:"center",gap:8,cursor:"pointer",border:`1px solid ${sessActions.find(x=>x.id===a.id)?"var(--red)":"var(--b1)"}`}} onClick={()=>setSessActions(s=>s.find(x=>x.id===a.id)?s.filter(x=>x.id!==a.id):[...s,a])}>
-                        <span style={{fontSize:16}}>{sessActions.find(x=>x.id===a.id)?"✅":"⬜"}</span>
-                        <span style={{fontSize:13}}>{a.name}</span>
-                      </div>
-                    ))}
+                {sessionMode==="aleatoire" && (
+                  <div className="form-row">
+                    <span className="inp-label">Nombre d'actions</span>
+                    <input className="inp" type="number" min={1} max={20} value={sessActions.length||5} onChange={e=>{const n=parseInt(e.target.value)||5; const pool=actions.filter(a=>a.intensity<=newSessInt); setSessActions(pickN(pool,Math.min(n,pool.length)));}}/>
+                    <button className="btn btn-outline btn-sm" style={{marginTop:6}} onClick={()=>{const pool=actions.filter(a=>a.intensity<=newSessInt);setSessActions(pickN(pool,Math.min(5,pool.length)));}}>🎲 Générer</button>
                   </div>
-                </div>
+                )}
+                {(sessionMode==="manuel"||sessionMode==="semi") && (
+                  <div className="form-row">
+                    <span className="inp-label">Actions sélectionnées ({sessActions.length})</span>
+                    <div style={{maxHeight:200,overflowY:"auto"}}>
+                      {actions.filter(a=>a.intensity<=newSessInt).map(a=>(
+                        <div key={a.id} style={{padding:"8px 10px",background:"var(--s2)",borderRadius:8,marginBottom:4,display:"flex",alignItems:"center",gap:8,cursor:"pointer",border:`1px solid ${sessActions.find(x=>x.id===a.id)?"var(--red)":"var(--b1)"}`}} onClick={()=>setSessActions(s=>s.find(x=>x.id===a.id)?s.filter(x=>x.id!==a.id):[...s,a])}>
+                          <span style={{fontSize:16}}>{sessActions.find(x=>x.id===a.id)?"✅":"⬜"}</span>
+                          <span style={{fontSize:13}}>{a.name}</span>
+                          <span style={{marginLeft:"auto",fontSize:10,color:"var(--muted)"}}>{INTENSITY.find(x=>x.level===a.intensity)?.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {sessionMode==="semi" && <button className="btn btn-outline btn-sm btn-full" style={{marginTop:6}} onClick={()=>{const existing=sessActions.map(a=>a.id); const pool=actions.filter(a=>a.intensity<=newSessInt&&!existing.includes(a.id)); setSessActions([...sessActions,...pickN(pool,Math.min(3,pool.length))]);}} >✨ Compléter auto</button>}
+                  </div>
+                )}
                 <div className="form-row"><span className="inp-label">Notes</span><textarea className="inp" value={newSessNote} onChange={e=>setNewSessNote(e.target.value)} placeholder="Ressenti, intensité..."/></div>
                 <div className="row">
                   <button className="btn btn-outline btn-full" onClick={()=>setShowAddSession(false)}>Annuler</button>
-                  <button className="btn btn-grad btn-full" onClick={addSession}>Créer</button>
+                  <button className="btn btn-grad btn-full" onClick={addSession} disabled={sessActions.length===0}>Créer ({sessActions.length})</button>
                 </div>
               </div>
             </div>
@@ -985,6 +1164,105 @@ export default function App() {
                 <div className="row">
                   <button className="btn btn-outline btn-full" onClick={()=>setShowAddAction(false)}>Annuler</button>
                   <button className="btn btn-grad btn-full" onClick={addAction} disabled={!newActName.trim()}>Ajouter</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>)}
+
+        {/* ══ ROUE DES RÉCOMPENSES ══ */}
+        {tab === "roue" && (<>
+          <div className="page-header">
+            <div className="back-btn" onClick={()=>setTab("home")}>←</div>
+            <div className="page-title">Roue des Récompenses</div>
+            <div className="action-btn" onClick={()=>setShowAddReward(true)}>+</div>
+          </div>
+          <div style={{padding:"8px 16px 0"}}>
+            {/* Points display */}
+            <div style={{textAlign:"center",marginBottom:12,padding:"12px",background:"var(--s1)",border:"1px solid var(--b1)",borderRadius:"var(--r)"}}>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:11,color:"var(--muted2)",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>Tes points</div>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:32,fontWeight:900,background:"var(--grad)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{myPoints}</div>
+            </div>
+
+            {/* Wheel */}
+            {rewards.length > 0 && (<>
+              <div className="wheel-container">
+                <div className="wheel-svg-wrap">
+                  <div className="wheel-pointer">▼</div>
+                  <svg className={`wheel-svg${wheelSpinning?" spin-anim":""}`}
+                    style={{"--spin-deg":`${wheelAngle}deg`,"--spin-dur":"4s",transform:`rotate(${wheelAngle}deg)`,transition:wheelSpinning?"transform 4s cubic-bezier(.17,.67,.12,1)":""}}
+                    width="280" height="280" viewBox="0 0 280 280">
+                    {rewards.map((r, i) => {
+                      const slice = 360 / rewards.length;
+                      const startAngle = i * slice - 90;
+                      const endAngle = startAngle + slice;
+                      const s = Math.sin(startAngle * Math.PI/180);
+                      const c = Math.cos(startAngle * Math.PI/180);
+                      const s2 = Math.sin(endAngle * Math.PI/180);
+                      const c2 = Math.cos(endAngle * Math.PI/180);
+                      const r1 = 130;
+                      const x1 = 140 + r1*c, y1 = 140 + r1*s;
+                      const x2 = 140 + r1*c2, y2 = 140 + r1*s2;
+                      const colors = ["#8b1a1a","#5a0a6a","#7a6a10","#1a4a6a","#2d7a4a","#6a1a4a","#4a4a0a","#1a6a4a"];
+                      const color = colors[i % colors.length];
+                      const midAngle = (startAngle + endAngle) / 2 * Math.PI/180;
+                      const tx = 140 + 90*Math.cos(midAngle);
+                      const ty = 140 + 90*Math.sin(midAngle);
+                      return <g key={r.id}>
+                        <path d={`M140,140 L${x1},${y1} A${r1},${r1} 0 ${slice>180?1:0},1 ${x2},${y2} Z`} fill={color} stroke="rgba(0,0,0,.3)" strokeWidth="1"/>
+                        <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize="18" transform={`rotate(${(startAngle+endAngle)/2+90},${tx},${ty})`}>{r.icon}</text>
+                      </g>;
+                    })}
+                    <circle cx="140" cy="140" r="20" fill="var(--bg)" stroke="rgba(255,255,255,.2)" strokeWidth="2"/>
+                  </svg>
+                </div>
+                <button className="btn btn-grad" style={{padding:"14px 40px",fontSize:15}} onClick={spinWheel} disabled={wheelSpinning}>
+                  {wheelSpinning ? "En cours..." : "🎡 Tourner la roue"}
+                </button>
+              </div>
+              {wheelResult && !wheelSpinning && (
+                <div className="wheel-result-card">
+                  <div className="wrc-icon">{wheelResult.icon}</div>
+                  <div className="wrc-name">{wheelResult.label}</div>
+                  <div className="wrc-cost">Coût : {wheelResult.cost} pts</div>
+                  <button className="btn" style={{background:"rgba(255,255,255,.2)",border:"none",color:"#fff",marginTop:10}} onClick={()=>buyReward(wheelResult)} disabled={myPoints<wheelResult.cost}>
+                    {myPoints>=wheelResult.cost?"✅ Utiliser":"❌ Points insuffisants"}
+                  </button>
+                </div>
+              )}
+            </>)}
+
+            {/* Rewards list */}
+            <div style={{marginBottom:10}}>
+              <div className="section-label">Toutes les récompenses</div>
+              <div className="reward-list">
+                {rewards.map(r=>(
+                  <div key={r.id} className={`reward-item${myPoints>=r.cost?" affordable":""}`}>
+                    <div className="ri-left">
+                      <span className="ri-icon">{r.icon}</span>
+                      <div>
+                        <div className="ri-name">{r.label}</div>
+                        <div className="ri-cost">{r.cost} pts</div>
+                      </div>
+                    </div>
+                    <button className="ri-buy" disabled={myPoints<r.cost} onClick={()=>buyReward(r)}>
+                      {myPoints>=r.cost?"Utiliser":"🔒"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {showAddReward && (
+            <div className="overlay" onClick={e=>e.target===e.currentTarget&&setShowAddReward(false)}>
+              <div className="modal">
+                <div className="modal-title">Nouvelle Récompense</div>
+                <div className="form-row"><span className="inp-label">Icône</span><input className="inp" value={newRewardIcon} onChange={e=>setNewRewardIcon(e.target.value)} style={{fontSize:24,textAlign:"center"}}/></div>
+                <div className="form-row"><span className="inp-label">Nom</span><input className="inp" value={newRewardName} onChange={e=>setNewRewardName(e.target.value)} placeholder="Ex: Massage 30 min"/></div>
+                <div className="form-row"><span className="inp-label">Coût en points</span><input className="inp" type="number" value={newRewardCost} onChange={e=>setNewRewardCost(parseInt(e.target.value)||0)}/></div>
+                <div className="row">
+                  <button className="btn btn-outline btn-full" onClick={()=>setShowAddReward(false)}>Annuler</button>
+                  <button className="btn btn-grad btn-full" onClick={addReward} disabled={!newRewardName.trim()}>Ajouter</button>
                 </div>
               </div>
             </div>
@@ -1290,11 +1568,15 @@ export default function App() {
         {/* ══ NAV BOTTOM ══ */}
         <nav className="nav-bottom">
           {NAV_ITEMS.map(n=>(
-            <button key={n.id} className={`nav-item${tab===n.id||(n.id==="coffre"&&tab==="coffre")||(n.id==="home"&&tab==="home")||(n.id==="rapide"&&tab==="rapide")||(n.id==="sessions"&&tab==="sessions")||(n.id==="biblio"&&tab==="biblio")||(n.id==="reglages"&&(tab==="reglages"||tab==="profil"||tab==="idees"))?" on":""}`} onClick={()=>setTab(n.id)}>
+            <button key={n.id} className={`nav-item${tab===n.id?" on":""}`} onClick={()=>setTab(n.id)}>
               <span className="nav-icon">{n.icon}</span>
               {n.label}
             </button>
           ))}
+          <button className={`nav-item${tab==="reglages"||tab==="profil"||tab==="idees"?" on":""}`} onClick={()=>setTab("reglages")}>
+            <span className="nav-icon">⚙️</span>
+            Réglages
+          </button>
         </nav>
 
       </div>
