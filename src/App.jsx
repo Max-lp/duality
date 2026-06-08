@@ -688,7 +688,6 @@ export default function App() {
     setNewActName(""); setNewActDesc(""); setNewActCat("oral"); setNewActInt(1); setNewActPts(10); setNewActLien(5); setNewActRole("couple");
     setShowAddAction(false);
   }
-  }
 
   function toggleFav(id) { setActions(actions.map(a => a.id === id ? {...a, favorite: !a.favorite} : a)); }
   function deleteAction(id) { setActions(actions.filter(a => a.id !== id)); }
@@ -715,27 +714,16 @@ export default function App() {
   function revealFantasme(id) { setFantasmes(fantasmes.map(f => f.id===id?{...f,status:"revealed",private:false}:f)); setLink(l=>Math.min(100,l+15)); }
   function realisedFantasme(id) { setFantasmes(fantasmes.map(f => f.id===id?{...f,status:"done"}:f)); setLink(l=>Math.min(100,l+20)); }
 
+  // Selected categories for rapide/session
+  const [selectedCats, setSelectedCats] = useState(st.selectedCats || CATEGORIES.map(c=>c.id));
+  function togSelectedCat(id) { setSelectedCats(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]); }
+
   // Filtered actions
   const filteredActions = actions.filter(a => {
     const matchQ = !searchQ || a.name.toLowerCase().includes(searchQ.toLowerCase()) || a.desc.toLowerCase().includes(searchQ.toLowerCase());
     const matchCat = filterCat === "all" || (filterCat === "favoris" && a.favorite) || a.category === filterCat;
     return matchQ && matchCat;
   });
-
-  // Random action
-  function generateRandom() {
-    const pool = actions.filter(a => a.intensity <= newSessInt);
-    if (!pool.length) { setCurAction({ name: "Aucune action disponible — ajoute-en dans la Bibliothèque !", category: "—", lien: 0, points: 0 }); return; }
-    fireAction(pick(pool));
-  }
-
-  // Selected categories for rapide/session
-  const [selectedCats, setSelectedCats] = useState(st.selectedCats || CATEGORIES.map(c=>c.id));
-  const [showCatSelector, setShowCatSelector] = useState(false);
-
-  function togSelectedCat(id) {
-    setSelectedCats(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
-  }
 
   // Random action using selectedCats
   function generateRandom() {
@@ -1372,7 +1360,7 @@ export default function App() {
           <div className="page-header">
             <div className="back-btn" onClick={()=>setTab("home")}>←</div>
             <div className="page-title">Journal</div>
-            <div className="action-btn" onClick={()=>{const t=prompt("Nouvelle idée:");if(t?.trim())setIdeas([{id:Date.now(),text:t.trim(),date:todayStr()},...ideas]);}}>+</div>
+            <div className="action-btn" onClick={()=>{const t=window.prompt("Nouvelle idée:");if(t?.trim())setIdeas([{id:Date.now(),text:t.trim(),date:todayStr()},...ideas]);}}>+</div>
           </div>
           <div style={{padding:"8px 16px 0"}}>
             {ideas.length===0
@@ -1560,7 +1548,7 @@ export default function App() {
             </div>
             <div className="card" style={{marginTop:0}}>
               <div className="section-label">Données</div>
-              <button className="btn btn-outline btn-full" style={{marginBottom:8}} onClick={()=>{if(confirm("Réinitialiser toutes les données ?"))localStorage.removeItem(KEY);}}>🗑️ Réinitialiser</button>
+              <button className="btn btn-outline btn-full" style={{marginBottom:8}} onClick={()=>{ localStorage.removeItem(KEY); window.location.reload(); }}>🗑️ Réinitialiser</button>
             </div>
           </div>
         </>)}
