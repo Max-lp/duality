@@ -12,17 +12,25 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
+const db = getDatabase(app);
 
 export function saveData(data) {
-  const dbRef = ref(db, "duality/couple");
-  set(dbRef, data);
+  try {
+    const dbRef = ref(db, "duality/couple");
+    set(dbRef, data).catch(e => console.warn("Firebase error:", e));
+  } catch(e) {
+    console.warn("Firebase error:", e);
+  }
 }
 
 export function listenData(callback) {
-  const dbRef = ref(db, "duality/couple");
-  onValue(dbRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) callback(data);
-  });
+  try {
+    const dbRef = ref(db, "duality/couple");
+    onValue(dbRef, (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (data) callback(data);
+      } catch(e) {}
+    }, (e) => console.warn("Firebase error:", e));
+  } catch(e) {}
 }
